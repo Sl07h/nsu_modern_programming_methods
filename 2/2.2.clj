@@ -22,12 +22,14 @@
     ) )
 
 (defn parallel-integral [f a b h]
-    (->>(iterate inc 0)
-        (take (/ (- b a) h))
+    ; (->>(iterate inc 0)      ; возвращает ленивую последовательность
+    ;     (take (/ (- b a) h)) ; нужной длины
+    (->>(range 0 (/ (- b a) h)) ; считаем число интервалов
         (map #(trapezoid  f 
                     (+ a (* h %)) 
                     (+ a (* h %) h)     
             ))
+        (doall)
         (apply +)
     )
 )
@@ -116,10 +118,11 @@
 
 ;; замеры времени
 (defn -main [& args]  
-    (time (integral f-polinom 0 50 0.5))
-    (time (integral f-polinom 0 50 0.5))
-    (time (parallel-integral f-polinom -100 -50 0.5))
-    (time (parallel-integral f-polinom -50 0 0.5))
+    (time (integral f-polinom 0 50 0.05))
+    (time (integral f-polinom 50 100 0.05))
+    (time (parallel-integral f-polinom -100 -50 0.05))
+    (time (parallel-integral f-polinom -50 0 0.05))
+    (shutdown-agents)
 )
 
 (println "\n\nВыполняем замеры времени:")

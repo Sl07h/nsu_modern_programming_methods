@@ -117,10 +117,10 @@
 
 ;; замеры времени
 (defn -main [& args]  
-    (time (integral f-polinom 0 50 0.5))
-    (time (integral f-polinom 0 50 0.5))
-    (time (integral-mem f-polinom -100 -50 0.5))
-    (time (integral-mem f-polinom -50 0 0.5))
+    (time (integral f-polinom 0 50 0.05))
+    (time (integral f-polinom 50 100 0.05))
+    (time (integral-mem f-polinom -100 -50 0.05))
+    (time (integral-mem f-polinom -50 0 0.05))
 )
 
 (println "\n\nВыполняем замеры времени:")
