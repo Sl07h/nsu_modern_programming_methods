@@ -44,10 +44,40 @@
 
 
 
+; (defn sum [expr & rest]
+;     (cons ::sum (cons expr rest)))
 
-;; порождение суммы
+
+;; порождение произведения
+(defn- collapse-sum-constants [exprs]
+    (let [
+        consts (filter constant? exprs)
+        other-exprs
+            (remove constant? exprs)
+        combined-const
+            (reduce
+                (fn [acc entry]
+                    (+ acc
+                    (constant-value entry)))
+                0 consts)]
+        (cond 
+            (= combined-const 0)
+                (list (constant 0))
+            (= combined-const 1)
+                (if (empty? other-exprs)
+                    (list (constant 1))
+                     other-exprs)
+            :default 
+                (cons (constant combined-const)
+                 other-exprs))))
 (defn sum [expr & rest]
-    (cons ::sum (cons expr rest)))
+    (let [normalized-exprs
+            (collapse-sum-constants
+                (cons expr rest))]
+        (if (= 1 (count normalized-exprs))
+            (first normalized-exprs)
+            (cons ::sum
+                normalized-exprs))))
 ;; проверка типа для суммы
 (defn sum? [expr]
     (= ::sum (first expr)))
@@ -162,6 +192,43 @@
             (variable :x))
     (variable :x)))
 
+(def e
+    (diff 
+        (sum
+            (product
+                (constant 1)
+                (constant 2)
+                (constant 3)
+                (product
+                    (variable :x)
+                    (variable :x)
+                )
+            )
+            (product
+                (constant 9)
+                (constant 8)
+                (product
+                    (variable :x)
+                    (variable :x)
+                )
+            )
+        )
+        (variable :x)))
 
-(println s)
-(println p)
+
+; (println s)
+; (println p)
+; (println e)
+
+
+(defn print [expr]
+    (def s0 (str expr))
+    (def s1 (clojure.string/replace s0 #":user\/" ""))
+    (def s2 (clojure.string/replace s1 #"\(const (\d+)\)" "$1"))
+    (def s3 (clojure.string/replace s2 #"\(variable (\d+)\)" "$1"))
+    (println s3)
+)
+
+(print s)
+(print p)
+(print e)
